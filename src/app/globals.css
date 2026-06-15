@@ -600,6 +600,10 @@ img {
   object-fit: cover;
 }
 
+.testimonial-image img {
+  object-position: 74% center;
+}
+
 .video-card::after {
   content: "";
   position: absolute;

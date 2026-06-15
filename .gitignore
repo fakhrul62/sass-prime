@@ -42,3 +42,7 @@ next-env.d.ts
 
 # local runtime data
 data/*.jsonl
+
+# local verification output
+artifacts/
+dev-server.*.log

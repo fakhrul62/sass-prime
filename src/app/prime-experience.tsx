@@ -318,7 +318,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
         <div className="section-heading side">
           <CornerLabel>Step By Step</CornerLabel>
-          <h2>Great Workplace Culture Is Built Overnight</h2>
+          <h2>Great Workplace Culture Isn&apos;t Built Overnight</h2>
           <p>Workplace happiness and motivation are built through continuous insight and action.</p>
         </div>
       </section>
@@ -367,7 +367,14 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           <div className="rating" aria-label="Rated 4.5 out of 5">4.5</div>
         </div>
         <div className="testimonial-image">
-          <Image src="/assets/prime-testimonial.png" alt="Executive customer portrait" fill sizes="(max-width: 900px) 100vw, 48vw" />
+          <Image
+            src="/assets/prime-testimonial.png"
+            alt="Executive customer portrait"
+            fill
+            loading="eager"
+            sizes="(max-width: 900px) 100vw, 48vw"
+            style={{ objectPosition: "right center" }}
+          />
         </div>
         <div className="section-heading side">
           <CornerLabel>Testimonials</CornerLabel>
