@@ -412,7 +412,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           <Link href="/" className="brand">
             <span>SaaS</span> Prime
           </Link>
-          <h2>The Ultimate Guide To Successful Late-Night Team Collaboration</h2>
+          <h2>Turn Workplace Signals Into Clear Action</h2>
           <div className="socials" aria-label="Social links">
             <Link href="/resources">in</Link>
             <Link href="/resources">ig</Link>
