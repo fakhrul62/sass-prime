@@ -46,3 +46,5 @@ data/*.jsonl
 # local verification output
 artifacts/
 dev-server.*.log
+
+.vercel
