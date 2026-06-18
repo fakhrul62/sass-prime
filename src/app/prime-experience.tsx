@@ -355,6 +355,13 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       </section>
 
       <section className="testimonial-section">
+        <div className="testimonial-heading">
+          <CornerLabel>Testimonials</CornerLabel>
+          <div className="testimonial-heading-copy">
+            <h2>What Our Customers Say</h2>
+            <p>Organizations use Prime to improve engagement, well-being, and workplace culture.</p>
+          </div>
+        </div>
         <div className="quote-panel">
           <p>
             The stress and burnout detection capabilities changed how we approach employee well-being. Prime helps us identify
@@ -375,11 +382,6 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
             sizes="(max-width: 900px) 100vw, 48vw"
             style={{ objectPosition: "right center" }}
           />
-        </div>
-        <div className="section-heading side">
-          <CornerLabel>Testimonials</CornerLabel>
-          <h2>What Our Customers Say</h2>
-          <p>Organizations use Prime to improve engagement, well-being, and workplace culture.</p>
         </div>
       </section>
 

@@ -805,13 +805,39 @@ img {
   align-items: stretch;
 }
 
-.testimonial-section .section-heading {
+.testimonial-heading {
   grid-column: 1 / -1;
   grid-row: 1 / 2;
+  margin-bottom: 18px;
+}
+
+.testimonial-heading .corner-label {
+  margin-bottom: 28px;
+}
+
+.testimonial-heading-copy {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.45fr);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.62fr);
+  gap: clamp(32px, 7vw, 96px);
   align-items: end;
-  margin-bottom: 10px;
+}
+
+.testimonial-heading h2 {
+  max-width: 720px;
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.testimonial-heading p {
+  max-width: 480px;
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .quote-panel {
@@ -1164,9 +1190,18 @@ img {
   }
 
   .section-heading,
-  .testimonial-section .section-heading {
+  .testimonial-heading-copy {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .testimonial-heading-copy {
+    gap: 18px;
+  }
+
+  .testimonial-heading p {
+    max-width: 620px;
+    margin-bottom: 0;
   }
 
   .quote-panel,
@@ -1289,6 +1324,7 @@ img {
 
   .section-heading h2,
   .pricing-copy h2,
+  .testimonial-heading h2,
   .footer-panel h2,
   .video-sim h2 {
     font-size: clamp(1.85rem, 9vw, 2.75rem);
