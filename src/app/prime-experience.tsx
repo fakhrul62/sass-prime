@@ -335,8 +335,8 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       </section>
 
       <section className="pricing-section">
-        <CornerLabel>Pricing Plan</CornerLabel>
         <div className="pricing-copy">
+          <CornerLabel>Pricing Plan</CornerLabel>
           <h2>Everything You Need, All In One Place</h2>
           <p>Empower your organization with AI-driven insights designed for sustainable growth.</p>
         </div>

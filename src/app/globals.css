@@ -14,8 +14,9 @@
   --accent: #0f9f72;
   --accent-soft: #dff7ed;
   --warning: #e2a619;
-  --shadow-sm: 0 10px 28px rgba(20, 28, 45, 0.08);
-  --shadow-md: 0 22px 70px rgba(20, 28, 45, 0.12);
+  --shadow-sm: 0 8px 24px rgba(20, 28, 45, 0.06);
+  --shadow-md: 0 18px 56px rgba(20, 28, 45, 0.1);
+  --section-space: clamp(68px, 8vw, 96px);
 }
 
 @theme inline {
@@ -273,8 +274,8 @@ img {
 
 .hero-copy h1 {
   max-width: 700px;
-  font-size: clamp(3.1rem, 5.8vw, 5.9rem);
-  line-height: 0.98;
+  font-size: clamp(3rem, 5.2vw, 5.25rem);
+  line-height: 1;
 }
 
 .hero-copy p,
@@ -417,7 +418,7 @@ img {
 }
 
 .press-strip {
-  margin-top: 24px;
+  margin-top: 20px;
   overflow: hidden;
   border-block: 1px solid var(--line-soft);
   color: #64748b;
@@ -441,7 +442,7 @@ img {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  margin-top: clamp(42px, 6vw, 74px);
+  padding: clamp(48px, 6vw, 72px) 0 var(--section-space);
 }
 
 .feature-tile {
@@ -483,7 +484,9 @@ img {
 .pricing-section,
 .testimonial-section,
 .demo-section {
-  margin-top: clamp(64px, 8vw, 104px);
+  margin-top: 0;
+  padding-block: var(--section-space);
+  border-top: 1px solid var(--line-soft);
 }
 
 .corner-label {
@@ -491,7 +494,7 @@ img {
   align-items: center;
   gap: 10px;
   width: fit-content;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .corner-label span {
@@ -512,7 +515,7 @@ img {
   grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.55fr);
   gap: clamp(24px, 5vw, 56px);
   align-items: end;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
 }
 
 .section-heading.side {
@@ -522,9 +525,9 @@ img {
 
 .section-heading h2,
 .pricing-copy h2 {
-  max-width: 780px;
-  font-size: clamp(2rem, 4vw, 4rem);
-  line-height: 1.04;
+  max-width: 720px;
+  font-size: clamp(2.35rem, 3.8vw, 3.75rem);
+  line-height: 1.06;
 }
 
 .section-heading p,
@@ -545,7 +548,7 @@ img {
 .quote-panel {
   min-width: 0;
   border: 1px solid var(--line-soft);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--surface);
   box-shadow: var(--shadow-sm);
 }
@@ -637,6 +640,7 @@ img {
   grid-template-columns: minmax(0, 1.04fr) minmax(300px, 0.72fr);
   gap: clamp(28px, 5vw, 56px);
   align-items: center;
+  padding-bottom: clamp(42px, 5vw, 64px);
 }
 
 .video-card,
@@ -716,6 +720,8 @@ img {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+  padding-top: 24px;
+  border-top: 0;
 }
 
 .timeline-line {
@@ -741,9 +747,13 @@ img {
   align-items: center;
 }
 
-.pricing-section .corner-label {
-  grid-column: 1 / -1;
-  margin-bottom: -8px;
+.pricing-copy {
+  align-self: center;
+}
+
+.pricing-copy p {
+  max-width: 560px;
+  margin-top: 18px;
 }
 
 .pricing-card {
@@ -808,11 +818,11 @@ img {
 .testimonial-heading {
   grid-column: 1 / -1;
   grid-row: 1 / 2;
-  margin-bottom: 18px;
+  margin-bottom: 30px;
 }
 
 .testimonial-heading .corner-label {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .testimonial-heading-copy {
@@ -823,13 +833,13 @@ img {
 }
 
 .testimonial-heading h2 {
-  max-width: 720px;
+  max-width: 660px;
   margin: 0;
   color: var(--foreground);
-  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-size: clamp(2.35rem, 3.8vw, 3.75rem);
   font-weight: 850;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 1.06;
 }
 
 .testimonial-heading p {
@@ -949,7 +959,7 @@ img {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
   gap: clamp(48px, 8vw, 112px);
-  margin-top: clamp(64px, 8vw, 104px);
+  margin-top: 0;
   padding: clamp(36px, 6vw, 72px);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.94)),
@@ -964,9 +974,9 @@ img {
 
 .footer-panel h2 {
   max-width: 620px;
-  margin: clamp(48px, 7vw, 88px) 0 0;
-  font-size: clamp(2.8rem, 5vw, 5.2rem);
-  line-height: 0.98;
+  margin: clamp(40px, 5vw, 64px) 0 0;
+  font-size: clamp(2.5rem, 4.2vw, 4.25rem);
+  line-height: 1.02;
 }
 
 .footer-side {
@@ -1158,7 +1168,7 @@ img {
   .section-heading h2,
   .pricing-copy h2,
   .footer-panel h2 {
-    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-size: clamp(2rem, 3.7vw, 3.2rem);
   }
 
   .video-card {
@@ -1210,10 +1220,6 @@ img {
     grid-row: auto;
   }
 
-  .pricing-section .corner-label {
-    grid-column: auto;
-  }
-
   .footer-panel {
     gap: 44px;
   }
@@ -1225,6 +1231,10 @@ img {
 }
 
 @media (max-width: 760px) {
+  :root {
+    --section-space: 56px;
+  }
+
   .site-shell {
     padding: 10px;
   }
@@ -1256,7 +1266,7 @@ img {
   }
 
   .hero-copy h1 {
-    font-size: clamp(2.55rem, 11vw, 4rem);
+    font-size: clamp(2.45rem, 10vw, 3.65rem);
   }
 
   .hero-actions,
@@ -1277,6 +1287,15 @@ img {
   .timeline-section,
   .metric-row {
     grid-template-columns: 1fr;
+  }
+
+  .feature-rail {
+    padding-block: 46px 56px;
+  }
+
+  .section-heading {
+    gap: 16px;
+    margin-bottom: 26px;
   }
 
   .timeline-line {
@@ -1313,7 +1332,7 @@ img {
 
 @media (max-width: 520px) {
   .hero-copy h1 {
-    font-size: clamp(2.35rem, 12vw, 3.35rem);
+    font-size: clamp(2.25rem, 10.5vw, 3rem);
   }
 
   .hero-copy p,
@@ -1327,7 +1346,7 @@ img {
   .testimonial-heading h2,
   .footer-panel h2,
   .video-sim h2 {
-    font-size: clamp(1.85rem, 9vw, 2.75rem);
+    font-size: clamp(1.9rem, 8vw, 2.45rem);
   }
 
   .hero-visual,
