@@ -408,34 +408,40 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       </section>
 
       <footer className="footer-panel">
-        <div>
+        <div className="footer-intro">
           <Link href="/" className="brand">
             <span>SaaS</span> Prime
           </Link>
           <h2>Turn Workplace Signals Into Clear Action</h2>
+        </div>
+        <div className="footer-side">
+          <form className="newsletter" onSubmit={handleSubscribe}>
+            <label>
+              Resources
+              <input type="email" name="email" placeholder="Email for updates" required />
+            </label>
+            <button type="submit">Join <Icon name="arrow" /></button>
+            {subNotice.text && <p className={`notice ${subNotice.kind}`}>{subNotice.text}</p>}
+          </form>
+          <nav>
+            <strong>Company</strong>
+            <div className="footer-nav-links">
+              {nav.map(([label, href]) => (
+                <Link key={label} href={href}>
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        </div>
+        <div className="footer-bottom">
+          <p className="copyright">© 2026 SaaS Prime. All Rights Reserved.</p>
           <div className="socials" aria-label="Social links">
             <Link href="/resources">in</Link>
             <Link href="/resources">ig</Link>
             <Link href="/resources">x</Link>
           </div>
         </div>
-        <form className="newsletter" onSubmit={handleSubscribe}>
-          <label>
-            Resources
-            <input type="email" name="email" placeholder="Email for updates" required />
-          </label>
-          <button type="submit">Join <Icon name="arrow" /></button>
-          {subNotice.text && <p className={`notice ${subNotice.kind}`}>{subNotice.text}</p>}
-        </form>
-        <nav>
-          <strong>Company</strong>
-          {nav.map(([label, href]) => (
-            <Link key={label} href={href}>
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <p className="copyright">© 2026 SaaS Prime. All Rights Reserved.</p>
       </footer>
 
       {videoOpen && (
