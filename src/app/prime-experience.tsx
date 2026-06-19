@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { RevealText, ScrambleText } from "./motion-text";
 import SignalCursor from "./signal-cursor";
 
 type Notice = {
@@ -69,6 +70,33 @@ function MenuMark({ open }: { open: boolean }) {
       <i />
       <i />
     </span>
+  );
+}
+
+function MotionLink({
+  href,
+  label,
+  className,
+  cursorLabel,
+  diagonal = false,
+}: {
+  href: string;
+  label: string;
+  className: string;
+  cursorLabel: string;
+  diagonal?: boolean;
+}) {
+  return (
+    <Link href={href} className={`motion-link ${className}`} data-cursor-label={cursorLabel}>
+      <span className="motion-link-content">
+        <span className="motion-link-label">{label}</span>
+        <span className="motion-link-label-hover" aria-hidden="true">{label}</span>
+      </span>
+      <span className="motion-link-arrows">
+        <span className="motion-link-arrow"><Arrow diagonal={diagonal} /></span>
+        <span className="motion-link-arrow-hover" aria-hidden="true"><Arrow diagonal={diagonal} /></span>
+      </span>
+    </Link>
   );
 }
 
@@ -198,14 +226,14 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </Link>
         <div className="header-signal">
           <i />
-          Workplace signal: live
+          <ScrambleText text="Workplace signal: live" />
         </div>
         <nav className="header-nav" aria-label="Primary navigation">
           {nav.slice(1, 4).map(([label, href]) => (
             <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <Link href="/demo" className="header-cta" data-cursor-label="Open demo request">Book a demo <Arrow diagonal /></Link>
+        <MotionLink href="/demo" className="header-cta" label="Book a demo" cursorLabel="Open demo request" diagonal />
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">
           Menu <MenuMark open={menuOpen} />
         </button>
@@ -240,14 +268,14 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         <div className="hero-shade" />
         <div className="hero-grid" />
         <div className="hero-content">
-          <p className="micro-label">AI workplace intelligence / 2026</p>
-          <h1>{headline}</h1>
+          <p className="micro-label"><ScrambleText text="AI workplace intelligence / 2026" /></p>
+          <RevealText as="h1">{headline}</RevealText>
           <p className="hero-intro">
             Prime turns the emotional pulse of work into decisions leaders can use—before pressure becomes damage.
           </p>
         </div>
         <div className="hero-actions">
-          <Link href="/demo" className="primary-action" data-cursor-label="Start with Prime">Read your signals <Arrow /></Link>
+          <MotionLink href="/demo" className="primary-action" label="Read your signals" cursorLabel="Start with Prime" />
           <button onClick={() => setVideoOpen(true)} className="play-action" data-cursor-label="Play product story"><span>▶</span> 01:24 / See Prime in motion</button>
         </div>
         <div className="hero-index">
@@ -287,7 +315,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       <section className="capabilities theme-section" data-theme="dark">
         <div className="section-intro" data-reveal>
           <p className="micro-label">Three parts / one clearer picture</p>
-          <h2>Intelligence with a human pulse.</h2>
+          <RevealText>Intelligence with a human pulse.</RevealText>
         </div>
         <div className="capability-list">
           {capabilities.map((item) => (
@@ -306,12 +334,12 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
 
       <section className="signal-lab theme-section" data-theme="deep">
         <div className="lab-copy" data-reveal>
-          <p className="micro-label">Live signal lab / No vanity metrics</p>
-          <h2>A workplace has a rhythm. Prime learns when it changes.</h2>
+          <p className="micro-label"><ScrambleText text="Live signal lab / No vanity metrics" /></p>
+          <RevealText>A workplace has a rhythm. Prime learns when it changes.</RevealText>
           <p>
             See pressure, trust, energy, and belonging as connected signals—not isolated survey scores.
           </p>
-          <Link href="/features" className="outline-action" data-cursor-label="Open intelligence layer">Explore the intelligence layer <Arrow diagonal /></Link>
+          <MotionLink href="/features" className="outline-action" label="Explore the intelligence layer" cursorLabel="Open intelligence layer" diagonal />
         </div>
         <div className="signal-console" data-reveal>
           <div className="console-head">
@@ -337,7 +365,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       <section className="process theme-section" data-theme="blue">
         <div className="process-head" data-reveal>
           <p className="micro-label dark">How Prime moves</p>
-          <h2>Listen. Understand. Act. Repeat.</h2>
+          <RevealText>Listen. Understand. Act. Repeat.</RevealText>
         </div>
         <div className="process-list">
           {steps.map(([number, title, copy]) => (
@@ -379,7 +407,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       <section className="offer theme-section" data-theme="acid">
         <div className="offer-title" data-reveal>
           <p className="micro-label dark">Early access / One clear plan</p>
-          <h2>Less guessing. More signal.</h2>
+          <RevealText>Less guessing. More signal.</RevealText>
           <p>Everything you need to hear your workforce and move with confidence.</p>
         </div>
         <div className="offer-card" data-reveal data-cursor-label="Prime lifetime access">
@@ -401,7 +429,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       <section className="demo-block theme-section" data-theme="coral">
         <div className="demo-copy" data-reveal>
           <p className="micro-label">Your team / Your signal</p>
-          <h2>Let’s hear what work feels like.</h2>
+          <RevealText>Let’s hear what work feels like.</RevealText>
           <p>Tell us a little about your organization. We’ll tailor the walkthrough to the questions you need answered.</p>
         </div>
         <form onSubmit={handleDemo} className="demo-form" data-reveal>
@@ -416,7 +444,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       <footer className="site-footer theme-section" data-theme="dark">
         <div className="footer-main">
           <Link className="wordmark footer-mark" href="/">PRIME<span>°</span></Link>
-          <h2>Better work starts with better listening.</h2>
+          <RevealText>Better work starts with better listening.</RevealText>
           <Link href="/demo" className="footer-circle" data-cursor-label="Make the first move"><span>Start now</span><Arrow diagonal /></Link>
         </div>
         <div className="footer-grid">
@@ -447,7 +475,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           <button className="video-close" onClick={() => setVideoOpen(false)}>Close <MenuMark open /></button>
           <div className="video-story">
             <p className="micro-label">Prime in motion / 01:24</p>
-            <h2>Listen to the change beneath the numbers.</h2>
+            <RevealText>Listen to the change beneath the numbers.</RevealText>
             <div className="story-wave">
               {Array.from({ length: 36 }).map((_, index) => <i key={index} style={{ height: `${18 + ((index * 17) % 76)}%` }} />)}
             </div>
