@@ -89,6 +89,7 @@ async function submitApi(path: string, payload: Record<string, string>) {
 export default function PrimeExperience({ pageMode = "home" }: { pageMode?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
+  const [activeTheme, setActiveTheme] = useState("dark");
   const [demoNotice, setDemoNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [subNotice, setSubNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [checkoutNotice, setCheckoutNotice] = useState<Notice>({ kind: "idle", text: "" });
@@ -124,6 +125,28 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
     document.body.classList.toggle("menu-open", menuOpen || videoOpen);
     return () => document.body.classList.remove("menu-open");
   }, [menuOpen, videoOpen]);
+
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-theme]"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const activeEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (activeEntry) {
+          setActiveTheme(activeEntry.target.getAttribute("data-theme") || "dark");
+        }
+      },
+      {
+        rootMargin: "-42% 0px -42% 0px",
+        threshold: [0, 0.01, 0.25, 0.5, 0.75, 1],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   async function handleDemo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -167,7 +190,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
 
   return (
     <main className="prime-site">
-      <header className="site-header">
+      <header className="site-header" data-active-theme={activeTheme}>
         <Link className="wordmark" href="/" aria-label="Prime home">
           PRIME<span>°</span>
         </Link>
@@ -204,7 +227,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </div>
 
-      <section className="hero">
+      <section className="hero theme-section" data-theme="dark">
         <Image
           src="/assets/prime-signal-hero.png"
           alt="Abstract human profile composed of workplace signal data"
@@ -234,7 +257,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         <div className="scroll-cue">Scroll to decode <span>↓</span></div>
       </section>
 
-      <section className="ticker" aria-label="Prime capabilities">
+      <section className="ticker theme-section" data-theme="acid" aria-label="Prime capabilities">
         <div>
           <span>Sentiment intelligence</span><i>✦</i>
           <span>Burnout detection</span><i>✦</i>
@@ -245,7 +268,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="manifesto">
+      <section className="manifesto theme-section" data-theme="light">
         <div className="manifesto-top" data-reveal>
           <p className="micro-label dark">The invisible layer of work</p>
           <p>Most workplace problems whisper before they shout.</p>
@@ -259,7 +282,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="capabilities">
+      <section className="capabilities theme-section" data-theme="dark">
         <div className="section-intro" data-reveal>
           <p className="micro-label">Three parts / one clearer picture</p>
           <h2>Intelligence with a human pulse.</h2>
@@ -279,7 +302,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="signal-lab">
+      <section className="signal-lab theme-section" data-theme="deep">
         <div className="lab-copy" data-reveal>
           <p className="micro-label">Live signal lab / No vanity metrics</p>
           <h2>A workplace has a rhythm. Prime learns when it changes.</h2>
@@ -309,7 +332,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="process">
+      <section className="process theme-section" data-theme="blue">
         <div className="process-head" data-reveal>
           <p className="micro-label dark">How Prime moves</p>
           <h2>Listen. Understand. Act. Repeat.</h2>
@@ -326,7 +349,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="proof">
+      <section className="proof theme-section" data-theme="light">
         <div className="proof-image" data-reveal>
           <Image
             src="/assets/prime-people-leader.png"
@@ -351,7 +374,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </blockquote>
       </section>
 
-      <section className="offer">
+      <section className="offer theme-section" data-theme="acid">
         <div className="offer-title" data-reveal>
           <p className="micro-label dark">Early access / One clear plan</p>
           <h2>Less guessing. More signal.</h2>
@@ -373,7 +396,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="demo-block">
+      <section className="demo-block theme-section" data-theme="coral">
         <div className="demo-copy" data-reveal>
           <p className="micro-label">Your team / Your signal</p>
           <h2>Let’s hear what work feels like.</h2>
@@ -388,7 +411,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </form>
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer theme-section" data-theme="dark">
         <div className="footer-main">
           <Link className="wordmark footer-mark" href="/">PRIME<span>°</span></Link>
           <h2>Better work starts with better listening.</h2>
