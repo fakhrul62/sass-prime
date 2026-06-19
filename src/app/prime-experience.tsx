@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { RevealText, ScrambleText } from "./motion-text";
+import { RevealText, ScrambleText, SignalClock } from "./motion-text";
 import SignalCursor from "./signal-cursor";
 
 type Notice = {
@@ -119,6 +119,11 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   const [menuOpen, setMenuOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
   const [activeTheme, setActiveTheme] = useState("dark");
+  const [activeContext, setActiveContext] = useState({
+    label: "Signals become decisions",
+    action: "Book a demo",
+    href: "/demo",
+  });
   const [demoNotice, setDemoNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [subNotice, setSubNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [checkoutNotice, setCheckoutNotice] = useState<Notice>({ kind: "idle", text: "" });
@@ -164,7 +169,13 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
 
         if (activeEntry) {
-          setActiveTheme(activeEntry.target.getAttribute("data-theme") || "dark");
+          const target = activeEntry.target as HTMLElement;
+          setActiveTheme(target.getAttribute("data-theme") || "dark");
+          setActiveContext({
+            label: target.dataset.railLabel || "Signals become decisions",
+            action: target.dataset.railAction || "Book a demo",
+            href: target.dataset.railHref || "/demo",
+          });
         }
       },
       {
@@ -239,6 +250,18 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </button>
       </header>
 
+      <aside className="context-rail" data-active-theme={activeTheme} aria-label="Current section action">
+        <div className="context-rail-line" />
+        <div className="context-rail-message">
+          <ScrambleText key={activeContext.label} text={activeContext.label} />
+        </div>
+        <SignalClock />
+        <Link href={activeContext.href} data-cursor-label={activeContext.action}>
+          <ScrambleText key={activeContext.action} text={activeContext.action} />
+          <Arrow diagonal />
+        </Link>
+      </aside>
+
       <div className={`menu-layer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         <div className="menu-noise" />
         <div className="menu-inner">
@@ -257,7 +280,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </div>
 
-      <section className="hero theme-section" data-theme="dark">
+      <section className="hero theme-section" data-theme="dark" data-rail-label="The workplace is speaking" data-rail-action="Read your signals" data-rail-href="/demo">
         <Image
           src="/assets/prime-signal-hero.png"
           alt="Abstract human profile composed of workplace signal data"
@@ -287,7 +310,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         <div className="scroll-cue">Scroll to decode <span>↓</span></div>
       </section>
 
-      <section className="ticker theme-section" data-theme="acid" aria-label="Prime capabilities">
+      <section className="ticker theme-section" data-theme="acid" data-rail-label="Live signal stream" data-rail-action="Explore features" data-rail-href="/features" aria-label="Prime capabilities">
         <div>
           <span>Sentiment intelligence</span><i>✦</i>
           <span>Burnout detection</span><i>✦</i>
@@ -298,7 +321,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="manifesto theme-section" data-theme="light">
+      <section className="manifesto theme-section" data-theme="light" data-rail-label="Quiet signals matter" data-rail-action="See how it works" data-rail-href="/how-it-works">
         <div className="manifesto-top" data-reveal>
           <p className="micro-label dark">The invisible layer of work</p>
           <p>Most workplace problems whisper before they shout.</p>
@@ -312,7 +335,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="capabilities theme-section" data-theme="dark">
+      <section className="capabilities theme-section" data-theme="dark" data-rail-label="Three connected capabilities" data-rail-action="Open features" data-rail-href="/features">
         <div className="section-intro" data-reveal>
           <p className="micro-label">Three parts / one clearer picture</p>
           <RevealText>Intelligence with a human pulse.</RevealText>
@@ -332,7 +355,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="signal-lab theme-section" data-theme="deep">
+      <section className="signal-lab theme-section" data-theme="deep" data-rail-label="Signal shift detected" data-rail-action="View intelligence" data-rail-href="/features">
         <div className="lab-copy" data-reveal>
           <p className="micro-label"><ScrambleText text="Live signal lab / No vanity metrics" /></p>
           <RevealText>A workplace has a rhythm. Prime learns when it changes.</RevealText>
@@ -362,7 +385,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="process theme-section" data-theme="blue">
+      <section className="process theme-section" data-theme="blue" data-rail-label="Connect to improve" data-rail-action="See the process" data-rail-href="/how-it-works">
         <div className="process-head" data-reveal>
           <p className="micro-label dark">How Prime moves</p>
           <RevealText>Listen. Understand. Act. Repeat.</RevealText>
@@ -379,7 +402,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="proof theme-section" data-theme="light">
+      <section className="proof theme-section" data-theme="light" data-rail-label="People, not percentages" data-rail-action="Read resources" data-rail-href="/resources">
         <div className="proof-image" data-reveal data-cursor-label="People, not percentages">
           <Image
             src="/assets/prime-people-leader.png"
@@ -404,7 +427,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </blockquote>
       </section>
 
-      <section className="offer theme-section" data-theme="acid">
+      <section className="offer theme-section" data-theme="acid" data-rail-label="Early access is open" data-rail-action="Get Prime" data-rail-href="/checkout">
         <div className="offer-title" data-reveal>
           <p className="micro-label dark">Early access / One clear plan</p>
           <RevealText>Less guessing. More signal.</RevealText>
@@ -426,7 +449,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </section>
 
-      <section className="demo-block theme-section" data-theme="coral">
+      <section className="demo-block theme-section" data-theme="coral" data-rail-label="Your team, your signal" data-rail-action="Request a demo" data-rail-href="/demo">
         <div className="demo-copy" data-reveal>
           <p className="micro-label">Your team / Your signal</p>
           <RevealText>Let’s hear what work feels like.</RevealText>
@@ -441,7 +464,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </form>
       </section>
 
-      <footer className="site-footer theme-section" data-theme="dark">
+      <footer className="site-footer theme-section" data-theme="dark" data-rail-label="Better listening starts here" data-rail-action="Make the first move" data-rail-href="/demo">
         <div className="footer-main">
           <Link className="wordmark footer-mark" href="/">PRIME<span>°</span></Link>
           <RevealText>Better work starts with better listening.</RevealText>

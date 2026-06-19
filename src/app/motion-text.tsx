@@ -119,3 +119,24 @@ export function RevealText({
     </Tag>
   );
 }
+
+export function SignalClock() {
+  const [time, setTime] = useState("-- : -- : --");
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      setTime(
+        [now.getHours(), now.getMinutes(), now.getSeconds()]
+          .map((value) => String(value).padStart(2, "0"))
+          .join(" : "),
+      );
+    };
+
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return <span className="signal-clock">[ <i /> {time} ]</span>;
+}
