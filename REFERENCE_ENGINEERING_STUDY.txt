@@ -1,0 +1,1014 @@
+REFERENCE ENGINEERING STUDY
+Source studied: D:\Work\httrack\lama
+Target project: D:\Work\NEXT\prime
+Study date: 2026-06-19
+
+PURPOSE
+
+This document records the implementation principles extracted from the supplied
+HTML, CSS, JavaScript, animation, canvas, and WebGL files. It is an engineering
+reference, not a license to reproduce Lama Lama's branding, artwork, copy,
+layout, or distinctive identity. Prime should use the transferable systems:
+fluid type, strict grids, theme variables, layered interactions, cursor input,
+progressive enhancement, and lifecycle-driven animation.
+
+
+1. OVERALL ARCHITECTURE
+
+The reference is built as a component system rather than one page script.
+Markup declares components through data-component attributes and js-* hooks.
+Styles describe visual layout. JavaScript instances attach behavior to those
+hooks. Large effects are separated into modules such as:
+
+- page and app lifecycle
+- event manager
+- smooth scroller
+- color theme manager
+- text reveal and mono text reveal
+- menu and navigation items
+- sticky bar and changing header messages
+- cursor velocity field and cursor label
+- WebGL image and video renderers
+- section backdrop renderer
+- buttons, icons, filters, marquees, sliders, and expandable case rows
+
+Visual class names and behavior hooks are deliberately separate:
+
+- ll-* classes: styling or component identity
+- js-* classes: behavior targets
+- data-* attributes: configuration and content passed to behavior
+
+This makes visual refactoring safer because JavaScript does not depend on a
+long utility-class string.
+
+The application keeps shared instances in a central registry. Components can
+request services such as device, cursor, cursorLabel, canvas, colorTheme,
+scroller, stickyBar, eventManager, headerMessage, and pitchDeck.
+
+
+2. LIFECYCLE AND EVENT MODEL
+
+The event manager maintains arrays of instances by lifecycle event and scope.
+Supported events include:
+
+- scroll
+- resize
+- tick
+- refresh
+- handleRouteChange
+- handleRouteChangeComplete
+- destroy
+
+Instances only implement the methods they need. The manager collects them,
+updates scopes, and dispatches events. Tick instances can be sorted by zIndex.
+
+Important principle for Prime:
+
+- Do not let every component create unrelated global listeners.
+- Keep one pointer stream, one resize stream, and one animation frame loop.
+- Let interactive modules subscribe to shared state.
+- Destroy observers, timelines, listeners, and animation frames explicitly.
+- Pause expensive rendering when a section is out of view.
+
+
+3. DEVICE AND PROGRESSIVE ENHANCEMENT
+
+The reference detects:
+
+- touch events
+- pointer events
+- primary input type
+- mobile device
+- iOS and iOS 16
+- Safari and Mobile Safari
+- WebGL capability and required extensions
+
+It adds document classes such as:
+
+- has-touch-events
+- has-pointer-events
+- primary-mouse
+- primary-touch
+
+Hover listeners are not bound on touch devices. WebGL effects are disabled or
+replaced with conventional images/videos when the browser is unsuitable.
+
+Prime rule:
+
+- Desktop pointer devices receive magnetic cursor and richer hover motion.
+- Touch devices receive direct, stable interactions without fake hover.
+- prefers-reduced-motion disables positional and fluid motion.
+- The page remains fully usable if canvas or WebGL is unavailable.
+
+
+4. COLOR SYSTEM
+
+The reference stores raw RGB triplets in CSS variables:
+
+--black: 0 0 0
+--white: 255 255 255
+--offBlack: 1 1 1
+--dark: 26 28 28
+--red: 231 93 96
+--green: 208 255 126
+--pink: 255 198 218
+--blue: 220 242 244
+--offWhite: 249 244 235
+
+Usage is rgb(var(--token)), which allows opacity modifiers without duplicating
+colors.
+
+Semantic variables are changed by theme:
+
+--bgPrimary
+--bgSecondary
+--textPrimary
+--textSecondary
+--signal
+
+Theme declarations:
+
+dark:
+  bgPrimary = dark
+  textPrimary = offWhite
+  bgSecondary = black
+
+light:
+  bgPrimary = offWhite
+  textPrimary = offBlack
+  bgSecondary = white
+
+pink:
+  bgPrimary = pink
+  textPrimary = offBlack
+  bgSecondary = white
+
+The JavaScript colorTheme manager reads the main or section data-theme and
+updates semantic variables. WebGL modules receive numeric RGB equivalents for
+background, content, and cursor colors.
+
+Prime adaptation:
+
+- Keep Prime's own navy, ivory, coral, blue, and acid colors.
+- Store primitives separately from semantic surface/text/signal variables.
+- Theme sections with data-theme rather than hardcoding every descendant.
+- Canvas and DOM effects must read the same semantic theme.
+- Selection colors should invert against the current theme.
+
+
+5. GRID SYSTEM
+
+The layout uses:
+
+Desktop, from 1000px:
+  columns: 12
+  outer margin: 40px / 2.5rem
+  gutter: 24px / 1.5rem
+
+Mobile:
+  columns: 6
+  outer margin: 16px / 1rem
+  gutter: 10px / 0.625rem
+
+Core CSS:
+
+.ll-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: 0.625rem;
+}
+
+At 1000px it becomes 12 columns with 1.5rem gaps.
+
+Column widths are calculated from:
+
+(viewport - 2 * margin - (columnCount - 1) * gap) / columnCount
+
+Content widths are also derived from grid math:
+
+content-inline = 6 desktop columns plus 5 gaps
+content-boxed = 8 desktop columns plus 7 gaps
+
+Prime adaptation:
+
+- Use a real 6/12-column grid instead of approximate percentages.
+- Create reusable --column-width, --grid-margin, and --grid-gap variables.
+- Align unrelated sections to shared column starts.
+- Use full-bleed sections with inner grid containers.
+- Use borders and grid alignment as the primary divider system.
+
+
+6. SPACING SYSTEM
+
+Spacing scales fluidly from a minimum rem value to a 1440px-based viewport
+value. The formula used repeatedly is:
+
+max(calc(min / 16 * 1rem), calc(max / 1440 * 100vw))
+
+Component spacing:
+
+xs: 8 -> 12
+sm: 12 -> 16
+md: 16 -> 24
+lg: 24 -> 32
+xl: 32 -> 48
+2xl: 48 -> 64
+hero: 110 -> 90
+
+Section spacing:
+
+3xs: 10 -> 20
+2xs: 20 -> 40
+xs: 30 -> 60
+sm: 40 -> 80
+md: 60 -> 120
+lg: 80 -> 160
+xl: 100 -> 200
+2xl: 110 -> 220
+3xl: 120 -> 240
+4xl: 160 -> 320
+
+The max() approach prevents spacing from becoming too small while letting it
+grow continuously on wider screens.
+
+Prime adaptation:
+
+- Use separate local spacing and section spacing scales.
+- Avoid arbitrary section padding values.
+- Make section rhythm grow with viewport width.
+- Preserve mobile minimums for readability and touch comfort.
+
+
+7. BREAKPOINT STRATEGY
+
+Primary structural breakpoint:
+
+- below 1000px: mobile/tablet composition, 6-column grid
+- 1000px and above: desktop composition, 12-column grid
+
+Additional breakpoints appear at:
+
+- 350
+- 400
+- 600
+- 800
+- 1000
+- 1200
+- 1280
+- 1440
+- 1600
+
+The reference does not merely shrink desktop. It conditionally:
+
+- creates/destroys mobile Swiper instances
+- switches media sources
+- changes menu and pitch-deck behavior
+- opens case content by default on mobile
+- removes hover-only interactions
+- uses different layouts and content visibility
+- increases type scales again at 1440px
+
+Prime adaptation:
+
+- 1000px should be the main behavioral breakpoint.
+- Mobile needs its own deliberate layout, not a wrapped desktop grid.
+- 1440px can introduce a second type-scale range.
+- JS media-query behavior must be centralized and cleaned up on change.
+
+
+8. TYPOGRAPHY
+
+The reference uses two functional families:
+
+Suisse BP International:
+  display, headings, body, navigation
+
+Sometype Mono:
+  tags, buttons, metadata, system labels
+
+Common proportional-font settings:
+
+- letter-spacing: -0.02em
+- display text is uppercase
+- display line-height: 0.8
+- large heading line-height: 0.9
+- body line-height: 1.2 to 1.5
+
+Important type scales:
+
+Display regular:
+  clamp(3.25rem, 1.0625rem + 4.38vw, 5rem)
+  at 1440+: clamp(5rem, 2.3075rem + 2.99vw, 7.6925rem)
+
+Display small:
+  clamp(3rem, 1.125rem + 3.75vw, 4.5rem)
+  at 1440+: clamp(4.5rem, 2.25rem + 2.5vw, 6.75rem)
+
+Heading 1:
+  clamp(2.5rem, 0.9375rem + 3.13vw, 3.75rem)
+  at 1440+: clamp(3.75rem, 1.875rem + 2.08vw, 5.625rem)
+
+Heading 2:
+  clamp(2rem, 0.75rem + 2.5vw, 3rem)
+  at 1440+: clamp(3rem, 1.5rem + 1.67vw, 4.5rem)
+
+Heading 3:
+  clamp(1.75rem, 0.8125rem + 1.88vw, 2.5rem)
+
+Heading 4:
+  clamp(1.5rem, 0.875rem + 1.25vw, 2rem)
+
+Body large:
+  clamp(1.25rem, 0.9375rem + 0.63vw, 1.5rem)
+  line-height 1.2
+
+Body medium:
+  clamp(1rem, 0.6875rem + 0.63vw, 1.25rem)
+  line-height 1.2
+
+Body regular:
+  clamp(0.875rem, 0.71875rem + 0.31vw, 1rem)
+  line-height 1.4
+
+Body small:
+  clamp(0.75rem, 0.59375rem + 0.31vw, 0.875rem)
+  line-height 1.5
+
+Mono tag/button:
+  0.625rem
+  weight 500
+  uppercase
+  line-height 1.8
+
+The reference also uses container query units in the pitch deck, allowing text
+to scale to the slide container rather than the viewport.
+
+Prime adaptation:
+
+- Use Prime's own typefaces, but preserve clear functional roles.
+- Use clamp formulas with a second desktop range at 1440px.
+- Keep display leading tight and body leading generous.
+- Use mono text as interface instrumentation, not decoration everywhere.
+- Use text-wrap and deliberate max widths to control line breaks.
+
+
+9. TEXT REVEAL SYSTEM
+
+Large text reveal:
+
+1. Replace br elements with wrapper blocks.
+2. Split text into lines and words.
+3. Preserve no-wrap line wrappers.
+4. Initial line state:
+   yPercent: 100
+   clip-path: inset(-10% -10% 120% -10%)
+5. Enter state per line:
+   from scale .96, yPercent 80, opacity 0
+   to scale 1, yPercent 0, opacity 1
+   clip-path opens to inset(-10% -10% -10% -10%)
+   ease expo.out
+   duration .85s
+6. Lines are staggered with a duration based on total line count.
+7. Exit:
+   scale .96
+   yPercent -80
+   clip-path inset(110% -10% -10% -10%)
+   duration .65s
+
+It re-splits on resize because line wrapping changes. It avoids replaying a
+completed reveal unnecessarily.
+
+Prime adaptation:
+
+- Implement a React-safe line reveal using nested overflow wrappers.
+- Recompute on layout changes only where necessary.
+- Do not hide server-rendered text permanently if JavaScript fails.
+- Reduced-motion users receive immediate text.
+
+
+10. MONO SCRAMBLE REVEAL
+
+System labels use a character-scramble reveal.
+
+Character pool:
+
+# # # # # $ * @ ( 0 % 1 >
+
+Special mappings preserve:
+
+- spaces as underscores during scrambling
+- square brackets as themselves
+
+Reveal:
+
+1. Generate a randomized string with the same length.
+2. Reveal randomized characters from left to right.
+3. Replace randomized characters with original characters.
+4. Duration is base duration plus 0.005s per character.
+5. Replacement starts about 0.2s after randomized reveal begins.
+
+Hide reverses the process:
+
+1. replace original characters with randomized characters
+2. remove characters from right to left
+
+Prime adaptation:
+
+- Use scramble only for short mono labels and status messages.
+- Preserve layout with an invisible original text layer.
+- Keep random characters deterministic enough to avoid hydration issues by
+  starting randomness after mount.
+
+
+11. MOTION TOKENS
+
+Configured generic duration scale:
+
+xs: .25s
+sm: .5s
+md: .75s
+lg: 1s
+xl: 1.5s
+
+Most frequently used eases:
+
+- expo.out for entrances, resizing, menu movement, and FLIP transitions
+- power4.out for hover settling and direct UI responses
+- power4.inOut for balanced toggles
+- power3.out for cursor/scramble exits
+- power2.out for progressive reveals
+- none for scroll-scrubbed progress
+
+Observed durations:
+
+.05, .15, .25, .35, .45, .55, .65, .75, .85, .95, 1.05, 1.25,
+1.95, 3.15, and 3.75 seconds
+
+Timing principles:
+
+- opacity swaps: .15 to .25
+- icon/button hover: .25 to .45
+- menu and panel movement: .45 to .75
+- text line reveal: .85
+- expandable content: .95 to 1.05
+- image reveal: 1.25
+- atmospheric WebGL settling: 1.95 to 3.75
+
+Prime adaptation:
+
+- Define motion tokens in CSS and JS.
+- Use faster exits than entrances.
+- Use one dominant ease family per interaction.
+- Scroll-linked progress must be linear before being transformed visually.
+
+
+12. BUTTON HOVER SYSTEM
+
+Buttons contain two complete visual layers:
+
+Normal layer:
+
+- normal backdrop
+- normal scramble text
+- normal arrow
+- passed children
+
+Hover layer:
+
+- hover backdrop
+- hover scramble text
+- hover arrow
+- duplicate passed children
+
+On mouse enter:
+
+- normal backdrop scales to .98 and changes opacity
+- hover backdrop fades in over .35s
+- normal arrow scales to 0
+- hover arrow scales to 1 over .45s
+- normal text hides
+- hover text scrambles in
+- optional cursor label appears
+
+On mouse leave the layers reverse. Duplicate layers avoid reflow and allow
+different colors and transform origins.
+
+Prime adaptation:
+
+- Keep a normal and hover content layer for important CTAs.
+- Use overflow clipping and opposing arrow transforms.
+- Do not animate width, which causes layout movement.
+- Use currentColor and semantic theme variables.
+
+
+13. ICON AND NAV HOVERS
+
+Icon buttons crossfade:
+
+- icon opacity 1 -> 0
+- alternate icon 0 -> 1
+- normal backdrop fades down
+- hover backdrop fades up
+- expo.out, .25s
+
+Navigation icons are built from small SVG pixel paths. Paths reveal in random
+order with:
+
+- duration .15s
+- random stagger amount .075s
+- 10 by 10 stagger grid
+
+After revealing, several icon states loop every .1s, creating a tiny animated
+pixel signal.
+
+Menu hamburger:
+
+- top line moves down .3125rem
+- bottom line moves up .3125rem
+- middle remains, producing a compressed close indicator
+- expo.out, .45s
+
+Prime adaptation:
+
+- Prime can use its own signal-cell icons.
+- Random cell reveals can reinforce the signal-intelligence identity.
+- Keep icon animation small, fast, and secondary to content.
+
+
+14. MENU SYSTEM
+
+The reference header is a compact fixed panel:
+
+- horizontally centered
+- top offset 16px
+- viewport width minus 32px
+- max width 438px
+- blurred translucent background
+- small border radius
+- stacked header and expandable item container
+
+Menu content is not a full viewport takeover. The inner menu height animates
+from zero and has its own hidden scrollbar. Navigation rows are 50px high with:
+
+- a subtle top line
+- animated pixel icon
+- text reveal
+- translucent hover background
+
+The header message changes by section through a shared service. Labels are
+provided as data attributes and one may be selected at random.
+
+Prime adaptation:
+
+- Keep Prime's own shape and branding.
+- Use a compact instrument-panel menu instead of a generic navigation bar.
+- Animate measured height, not max-height guesses.
+- Keep background blur and page focus states accessible.
+- Close on route change, Escape, and outside interaction.
+
+
+15. STICKY BAR SYSTEM
+
+The reference has a separate sticky bar that sections show or hide through
+ScrollTrigger ranges.
+
+Show:
+
+- horizontal line scaleX 0 -> 1 from left
+- expo.out .75s
+- reveal labels, buttons, clock, and language switch
+
+Hide:
+
+- line scaleX 1 -> 0
+- expo.out .55s
+- hide child reveals
+- pointer-events disabled at completion
+
+Sections can register controls with the sticky bar and receive callbacks when
+the bar changes state.
+
+Prime adaptation:
+
+- Add a contextual bottom signal rail on desktop.
+- Change its label and action based on the active section.
+- Keep it absent or simplified on mobile.
+
+
+16. CURSOR VELOCITY FIELD
+
+The main pointer effect is not a DOM circle. It is a low-resolution WebGL
+velocity texture.
+
+Activation:
+
+- disabled on touch devices
+- requires WebGL and EXT_color_buffer_float
+- runs in a shared canvas render system
+
+Resolution:
+
+viewport width / 36
+viewport height / 36
+then scaled by device/render ratio
+
+Pointer shader:
+
+- receives previous velocity texture
+- receives previous/current cursor positions
+- receives movement vector
+- converts cursor to normalized coordinates
+- applies aspect-ratio correction
+- computes radial distance
+- uses exponential falloff
+- radius approximately .04
+- movement strength approximately .04
+- injects pointer velocity into the field
+
+Decay shader:
+
+previous velocity * (1 - min(.5, delta / 250))
+
+The field keeps rendering while the last cursor movement was less than 1500ms
+ago. After that, it marks itself inactive.
+
+The resulting texture is supplied to backdrop, image, and video shaders. This
+means the cursor distorts content rather than drawing a visible cursor object.
+
+Prime adaptation:
+
+- Implement a canvas-based signal wake with a low-resolution field.
+- Use pointer velocity, radial falloff, and gradual decay.
+- Apply it to a lightweight overlay or CSS mask before attempting full WebGL
+  media compositing.
+- One shared canvas should cover the viewport.
+- Stop the render loop when velocity has decayed.
+- Disable on touch and reduced motion.
+
+
+17. CURSOR LABEL
+
+A separate fixed DOM label follows the pointer:
+
+- pointer-events none
+- opacity normally zero
+- x and y use GSAP quickTo
+- expo.out
+- duration .45s
+
+The x handler checks if label width would exceed the viewport. It applies a
+negative xPercent so the label remains visible near the right edge.
+
+Show:
+
+- update duplicated text containers
+- run mono scramble reveal
+- opacity to 1 in .05s
+
+Hide:
+
+- run reverse scramble
+- opacity to 0 in .25s after a .35s delay
+
+Any component with data-text or data-label can request a cursor message.
+
+Prime adaptation:
+
+- Use one shared cursor label.
+- Populate it from data-cursor-label attributes.
+- Smooth position using interpolation or quick setters.
+- Correct at right and bottom viewport edges.
+- Hide on pointer leave, touch, modal open, and reduced motion.
+
+
+18. WEBGL IMAGE AND VIDEO SYSTEM
+
+Image/video modules:
+
+- are disabled on touch and Safari conditions where needed
+- read data-width, data-height, data-parallax, and responsive sources
+- choose an appropriate source width from srcset
+- lazy-load when entering view
+- use an Intersection/ScrollTrigger lifecycle
+- add/remove themselves from the shared canvas render list
+- calculate DOM rect and scroll offset
+- move shader output to match the DOM element
+- refresh after layout shifts
+- pause when out of viewport
+
+Constants:
+
+- border around render area: 80px
+- parallax scale: 1.25
+- grid pixel size: 8
+
+Image reveal:
+
+- reveal progress 0 -> 1.1
+- power2.out
+- 1.25s
+- final uniform normalized to 1
+
+Parallax:
+
+- progress -1 -> 1
+- scrubbed linearly by section scroll
+
+Mouse press:
+
+- hover uniform moves toward 1
+- power4.out over 3.75s
+
+Release:
+
+- hover returns to default
+- power4.out over 1.25s
+
+Pointer location follows with quickTo:
+
+- power4.out
+- .55s
+
+Prime adaptation:
+
+- Use DOM images as the reliable source of truth.
+- Add shader/canvas enhancement only when supported.
+- Keep image sizing and alt text in normal HTML.
+- Drive subtle image displacement from the shared signal field.
+- Avoid copying the reference's exact pixel logo pattern or shader artwork.
+
+
+19. BACKDROP AND SECTION TRANSITIONS
+
+Sections can own full-viewport media backdrops. The backdrop renderer:
+
+- selects desktop or mobile media based on the 1000px breakpoint
+- uses fallback images when WebGL or playback is unavailable
+- reads section theme and passes it to shaders
+- uses top and bottom scroll timelines
+- adds itself to the canvas while active
+- removes itself when outside the section
+
+Top progress:
+
+- scrub from section approach to top top
+
+Bottom progress:
+
+- scrub from bottom bottom to bottom -10%
+
+The section shader reveals and removes a patterned field across the section
+boundary. Some sections also update header messages and header icons while
+crossing central viewport thresholds.
+
+Prime adaptation:
+
+- Use CSS/data-theme transitions first.
+- Add fixed visual layers that are clipped by section progress.
+- Active-section state should control cursor color, rail text, and backdrop.
+
+
+20. EXPANDABLE CASE ROWS AND FLIP
+
+Case rows use:
+
+- hover-only preview state on desktop
+- default open content on mobile
+- Swiper for horizontal media
+- GSAP Flip when images move between compact and expanded containers
+- dynamic height animation
+- layout refresh calls throughout animation
+
+Open:
+
+- content height to 28.5rem, then auto
+- description expands to auto
+- controls fade in
+- image containers move with FLIP
+- image scale returns to 1
+- expo.out / power4.out, roughly .95 to 1.05s
+
+Close:
+
+- lock measured height first
+- content collapses to zero
+- description returns to 7.5rem
+- images move back with FLIP
+- compact image scale is restored
+
+Prime adaptation:
+
+- Expand data stories or product capabilities inline.
+- Measure height before animation.
+- Use layout animation for media relocation.
+- On mobile, avoid interaction dependency for essential information.
+
+
+21. FILTERS AND STATEFUL CONTROLS
+
+Filters:
+
+- store the selected tag in URLSearchParams
+- strip the default "all" value from the URL
+- hide nonmatching items with a class
+- update counts using scramble text
+- scroll to top and refresh layout after filtering
+- animate filter panel in/out with scale .96 and yPercent movement
+
+Prime adaptation:
+
+- Resource filters should remain linkable through URL state.
+- Counts and state labels can use mono scramble.
+- Filter operations must refresh observers and layout-dependent animation.
+
+
+22. MARQUEE AND DRAG
+
+Logo marquee:
+
+- reads drag delta
+- converts delta into xPercent relative to marquee width
+- smooths xPercent with quickTo, power4.out, .75s
+- wraps transform continuously using modulo arithmetic
+- also receives scroll progress and converts it into synthetic drag
+- exposes cursor label on hover
+
+Prime adaptation:
+
+- Combine slow autonomous movement with pointer drag and scroll response.
+- Use modulo wrapping instead of duplicating ad hoc keyframes.
+- Pause or simplify for reduced motion.
+
+
+23. IMAGE LOADING AND OBSERVERS
+
+Conventional images:
+
+- wait for load or complete state
+- use IntersectionObserver
+- reveal opacity using configured medium duration (.75s)
+- disconnect observer after reveal
+- can expose a cursor label through data-text
+
+Prime adaptation:
+
+- Keep loading and reveal logic independent from decorative motion.
+- Do not animate images before they are decoded.
+- Disconnect one-shot observers.
+
+
+24. CLOCK AND MICRO-INTERACTION LANGUAGE
+
+The clock does not simply fade. It assembles characters through short glitch
+sequences using _, #, $, %, @, and -. The whole sequence lasts about .15s.
+
+The visual language is consistent:
+
+- system labels appear as machine output
+- brackets and tiny red/colored status dots indicate live state
+- microcopy sits inside compact mono components
+- animation often reveals structure before content
+
+Prime adaptation:
+
+- Prime status values can assemble from signal characters.
+- Keep these effects limited to live metrics, timestamps, and system states.
+
+
+25. ACCESSIBILITY OBSERVATIONS
+
+Positive patterns:
+
+- normal HTML remains under visual effects
+- media has fallback behavior
+- touch devices avoid hover dependencies
+- buttons and links remain semantic
+- menu and modal controls have labels
+- video controls are normal buttons
+- images retain alt text
+- pointer overlays use pointer-events none
+
+Risks to avoid:
+
+- opacity-zero content must become visible if JS fails
+- canvas effects must not replace meaningful content
+- focus states should not be removed without replacements
+- scramble text requires a stable accessible label
+- motion needs reduced-motion handling
+- fixed panels must preserve keyboard focus and Escape behavior
+
+
+26. FILE CLASSIFICATION
+
+Core first-party behavior studied:
+
+- app-BNsdDmQQ.js
+- backdrop_theme-SkCbZ8J9.js
+- button-DLgv9s-4.js
+- case_filter-DSFfQbyK.js
+- case_filters-BS5mWSEu.js
+- case_highlighted-CGLCvtsM.js
+- case_item-BvOb45Rn.js
+- clock-D_5zN12r.js
+- colorTheme-CDrS6ZCH.js
+- contact_card-BtY2AZ1o.js
+- eventManager-CP4nmgxo.js
+- footer-DX_q9Gj9.js
+- gsapConfig-CK2e0qRV.js
+- hashLink-BmvZZ2JC.js
+- hero_extended-D27c7Cwz.js
+- icon-CQYq1EWl.js
+- img-sCgc12iI.js
+- logo_marquee-nIQZDTRw.js
+- logos-DN3qn0p_.js
+- nav_item_icon-DmeHtg1-.js
+- services-fzmDtwvZ.js
+- thumbnail_toggle-BKXuwEpQ.js
+- webgl_image-oPv_AkS1.js
+- webgl_video-BjDg_SIx.js
+
+Infrastructure/vendor code identified:
+
+- CSSPlugin and GSAP bundles
+- GSAP Flip, ScrollTrigger, Observer, ScrollTo, and SplitText behavior
+- Swiper and accessibility modules
+- HLS/video support
+- UA/device parser
+- analytics, GTM, Fathom, Cal, and embed scripts
+
+Vendor and analytics internals are not design rules and should not be copied
+into Prime.
+
+
+27. PRIME IMPLEMENTATION PLAN DERIVED FROM THE STUDY
+
+Phase A: foundation
+
+- Convert colors to primitive RGB plus semantic theme variables.
+- Introduce exact 6/12-column grid math.
+- Replace ad hoc spacing with fluid local and section scales.
+- Replace current display sizing with a two-range clamp system.
+- Add data-theme sections and active-theme propagation.
+
+Phase B: motion language
+
+- Build reusable line-reveal wrappers.
+- Build mono scramble labels.
+- Upgrade buttons to dual-layer hover transitions.
+- Add signal-cell icon animation.
+- Add active-section contextual rail.
+
+Phase C: cursor and media response
+
+- Add one fixed canvas signal-wake layer.
+- Track pointer velocity with radial injection and decay.
+- Add one edge-aware cursor label.
+- Feed pointer variables to media cards for subtle displacement.
+- Disable all pointer effects on touch/reduced motion.
+
+Phase D: responsive composition
+
+- Use 1000px as behavioral breakpoint.
+- Recompose mobile sections instead of only stacking desktop.
+- Reduce hover-only dependencies.
+- Validate at 390, 768, 1000, 1440, and 1920 widths.
+
+Phase E: verification
+
+- lint and production build
+- keyboard and focus checks
+- reduced-motion check
+- touch/mobile check
+- no-JS content visibility check where practical
+- console and horizontal-overflow checks
+- incremental Git commits and pushes
+
+
+28. NON-COPYING BOUNDARY
+
+Prime must not reproduce:
+
+- Lama Lama's name, logo, copy, imagery, or case content
+- the eye hero
+- the exact dotted Lama logo field
+- exact navigation labels or header messages
+- exact page composition
+- exact pixel icon artwork
+- exact shader logo function
+- exact section ordering
+
+Prime may use the general engineering ideas:
+
+- semantic themes
+- fluid type and spacing formulas
+- 6/12-column math
+- lifecycle-based component behavior
+- progressive enhancement
+- pointer velocity as input
+- dual-layer hover choreography
+- text clipping and scramble reveals
+- scroll-aware contextual UI
+
+The finished Prime site should be recognizable as Prime's workplace signal
+product, with its own content model, visual motifs, colors, iconography, and
+interaction decisions.
