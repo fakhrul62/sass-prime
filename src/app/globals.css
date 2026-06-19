@@ -132,6 +132,44 @@ img { max-width: 100%; }
 
 .prime-site { min-height: 100vh; overflow: clip; }
 
+.signal-cursor-canvas {
+  position: fixed;
+  z-index: 65;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.signal-cursor-label {
+  position: fixed;
+  z-index: 95;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(17rem, calc(100vw - 2rem));
+  padding: 0.4rem 0.55rem;
+  pointer-events: none;
+  opacity: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono), monospace;
+  font-size: var(--type-mono);
+  font-weight: 500;
+  line-height: 1.35;
+  text-transform: uppercase;
+  transition: opacity var(--duration-xs) var(--ease-ui);
+  will-change: transform, opacity;
+}
+
+.signal-cursor-label.is-visible { opacity: 1; }
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .signal-cursor-canvas,
+  .signal-cursor-label { display: none; }
+}
+
 .theme-section {
   --bg-primary-rgb: var(--ink-rgb);
   --bg-secondary-rgb: var(--ink-2-rgb);

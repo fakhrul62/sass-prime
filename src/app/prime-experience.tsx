@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import SignalCursor from "./signal-cursor";
 
 type Notice = {
   kind: "idle" | "success" | "error";
@@ -190,6 +191,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
 
   return (
     <main className="prime-site">
+      <SignalCursor />
       <header className="site-header" data-active-theme={activeTheme}>
         <Link className="wordmark" href="/" aria-label="Prime home">
           PRIME<span>°</span>
@@ -203,7 +205,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
             <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <Link href="/demo" className="header-cta">Book a demo <Arrow diagonal /></Link>
+        <Link href="/demo" className="header-cta" data-cursor-label="Open demo request">Book a demo <Arrow diagonal /></Link>
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">
           Menu <MenuMark open={menuOpen} />
         </button>
@@ -245,8 +247,8 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           </p>
         </div>
         <div className="hero-actions">
-          <Link href="/demo" className="primary-action">Read your signals <Arrow /></Link>
-          <button onClick={() => setVideoOpen(true)} className="play-action"><span>▶</span> 01:24 / See Prime in motion</button>
+          <Link href="/demo" className="primary-action" data-cursor-label="Start with Prime">Read your signals <Arrow /></Link>
+          <button onClick={() => setVideoOpen(true)} className="play-action" data-cursor-label="Play product story"><span>▶</span> 01:24 / See Prime in motion</button>
         </div>
         <div className="hero-index">
           <span>Live index</span>
@@ -289,7 +291,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
         <div className="capability-list">
           {capabilities.map((item) => (
-            <article className={`capability-row ${item.tone}`} key={item.number} data-reveal>
+            <article className={`capability-row ${item.tone}`} key={item.number} data-reveal data-cursor-label={`Explore signal ${item.number}`}>
               <span className="cap-number">{item.number}</span>
               <h3>{item.title}</h3>
               <p>{item.copy}</p>
@@ -309,7 +311,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           <p>
             See pressure, trust, energy, and belonging as connected signals—not isolated survey scores.
           </p>
-          <Link href="/features" className="outline-action">Explore the intelligence layer <Arrow diagonal /></Link>
+          <Link href="/features" className="outline-action" data-cursor-label="Open intelligence layer">Explore the intelligence layer <Arrow diagonal /></Link>
         </div>
         <div className="signal-console" data-reveal>
           <div className="console-head">
@@ -350,7 +352,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       </section>
 
       <section className="proof theme-section" data-theme="light">
-        <div className="proof-image" data-reveal>
+        <div className="proof-image" data-reveal data-cursor-label="People, not percentages">
           <Image
             src="/assets/prime-people-leader.png"
             alt="People operations leader reviewing a workplace report"
@@ -380,7 +382,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           <h2>Less guessing. More signal.</h2>
           <p>Everything you need to hear your workforce and move with confidence.</p>
         </div>
-        <div className="offer-card" data-reveal>
+        <div className="offer-card" data-reveal data-cursor-label="Prime lifetime access">
           <div className="offer-price">
             <span>Lifetime access</span>
             <strong><sup>$</sup>59.99</strong>
@@ -415,7 +417,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         <div className="footer-main">
           <Link className="wordmark footer-mark" href="/">PRIME<span>°</span></Link>
           <h2>Better work starts with better listening.</h2>
-          <Link href="/demo" className="footer-circle"><span>Start now</span><Arrow diagonal /></Link>
+          <Link href="/demo" className="footer-circle" data-cursor-label="Make the first move"><span>Start now</span><Arrow diagonal /></Link>
         </div>
         <div className="footer-grid">
           <div>
