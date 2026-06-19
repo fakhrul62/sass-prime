@@ -39,6 +39,7 @@ export default function SignalCursor() {
 
     const particles: Particle[] = [];
     const pointer = { x: -100, y: -100, lastX: -100, lastY: -100, speed: 0 };
+    const visualPointer = { x: 0, y: 0 };
     const labelPosition = { x: -100, y: -100, targetX: -100, targetY: -100 };
     let frame = 0;
     let width = window.innerWidth;
@@ -151,6 +152,12 @@ export default function SignalCursor() {
 
       labelPosition.x += (labelPosition.targetX - labelPosition.x) * 0.18;
       labelPosition.y += (labelPosition.targetY - labelPosition.y) * 0.18;
+      if (pointer.x >= 0) {
+        visualPointer.x += (((pointer.x / width) - 0.5) * 2 - visualPointer.x) * 0.08;
+        visualPointer.y += (((pointer.y / height) - 0.5) * 2 - visualPointer.y) * 0.08;
+        document.documentElement.style.setProperty("--pointer-x", visualPointer.x.toFixed(4));
+        document.documentElement.style.setProperty("--pointer-y", visualPointer.y.toFixed(4));
+      }
       const labelRect = labelElement.getBoundingClientRect();
       const offsetX = labelPosition.x + labelRect.width + 18 > width ? -labelRect.width - 12 : 14;
       const offsetY = labelPosition.y + labelRect.height + 18 > height ? -labelRect.height - 12 : 14;
@@ -178,6 +185,8 @@ export default function SignalCursor() {
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerover", handlePointerOver);
       document.removeEventListener("pointerout", handlePointerOut);
+      document.documentElement.style.removeProperty("--pointer-x");
+      document.documentElement.style.removeProperty("--pointer-y");
     };
   }, []);
 
