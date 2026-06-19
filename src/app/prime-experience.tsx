@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Notice = {
   kind: "idle" | "success" | "error";
@@ -12,130 +12,62 @@ type Notice = {
 const nav = [
   ["Home", "/"],
   ["Features", "/features"],
-  ["About Us", "/about"],
-  ["How it works", "/how-it-works"],
+  ["About", "/about"],
+  ["Process", "/how-it-works"],
   ["Resources", "/resources"],
 ];
 
-const features = [
+const capabilities = [
   {
-    title: "Workforce Listening",
-    copy: "Gather real-time signals from your workplace.",
+    number: "01",
+    title: "Listen beyond the survey.",
+    copy: "Prime reads the changing shape of work through lightweight check-ins, sentiment signals, and team-level context.",
+    meta: ["Pulse capture", "Open feedback", "Signal mapping"],
+    tone: "coral",
   },
   {
-    title: "Workplace Intelligence",
-    copy: "Make sharper decisions with AI-powered insights.",
+    number: "02",
+    title: "See pressure before it spreads.",
+    copy: "Burnout, disengagement, and communication friction become visible while there is still time to act.",
+    meta: ["Risk radar", "Trend shifts", "Team patterns"],
+    tone: "blue",
   },
   {
-    title: "Build A Better Workplace",
-    copy: "Transform insight into durable organizational growth.",
-  },
-];
-
-const insights = [
-  {
-    title: "Proactive Stress & Burnout Detection",
-    copy: "Leverage sentiment analysis to uncover early signs of stress, burnout, and disengagement.",
-    tag: "Risk radar",
-  },
-  {
-    title: "Real-Time Employee Sentiment Monitoring",
-    copy: "Capture and analyze employee sentiment instantly with AI-powered insight designed to improve engagement.",
-    tag: "AI listening",
+    number: "03",
+    title: "Turn insight into momentum.",
+    copy: "Every signal is translated into a clear next move for people leaders, managers, and operating teams.",
+    meta: ["Action briefs", "Priority cues", "Progress loops"],
+    tone: "acid",
   },
 ];
 
 const steps = [
-  ["01", "Launch & Customize", "Set up your platform and customize it to match your culture."],
-  ["02", "Workforce Listening", "Gather real-time insights from your workforce."],
-  ["03", "Workplace Intelligence", "Make smarter decisions with AI-powered insight."],
-  ["04", "Build A Better Workplace", "Transform insight into lasting organizational growth."],
+  ["01", "Connect", "Bring in the signals your team already creates."],
+  ["02", "Interpret", "Prime identifies meaningful movement, not noise."],
+  ["03", "Decide", "Leaders receive focused actions with context."],
+  ["04", "Improve", "Track whether the workplace is actually getting better."],
 ];
 
 const metrics = [
-  ["95%", "response clarity"],
-  ["42%", "faster culture actions"],
-  ["3.5x", "signal coverage"],
+  ["95%", "signal clarity"],
+  ["42%", "faster action"],
+  ["3.5×", "wider coverage"],
 ];
 
-function Icon({ name }: { name: "arrow" | "play" | "apple" | "spark" | "check" | "send" | "menu" | "close" }) {
-  const common = "h-5 w-5";
-  if (name === "play") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M8 5.5v13l10-6.5-10-6.5Z" fill="currentColor" />
-      </svg>
-    );
-  }
-  if (name === "apple") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M16.6 12.5c0-2 1.7-3 1.8-3.1-1-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7-.7 0-1.7-.7-2.7-.7-1.4 0-2.7.8-3.4 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.2 2.7 2.1 1.1 0 1.5-.7 2.8-.7s1.7.7 2.8.7c1.2 0 1.9-1 2.6-2.1.8-1.2 1.1-2.4 1.1-2.5-.1 0-2.9-1.1-2.9-3.4ZM14.7 6.5c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.6.6-1 1.6-.9 2.6.9.1 1.9-.5 2.5-1.2Z"
-          fill="currentColor"
-        />
-      </svg>
-    );
-  }
-  if (name === "spark") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="m12 2 2.4 6.7L21 11l-6.6 2.3L12 20l-2.4-6.7L3 11l6.6-2.3L12 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-  if (name === "check") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="m5 12 4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-  if (name === "send") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="m4 12 16-8-5 16-3-7-8-1Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-  if (name === "menu" || name === "close") {
-    return (
-      <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        {name === "menu" ? (
-          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        ) : (
-          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        )}
-      </svg>
-    );
-  }
+function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
-    <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 12h14m0 0-5-5m5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={diagonal ? "M5 19 19 5M9 5h10v10" : "M4 12h16m-6-6 6 6-6 6"} />
     </svg>
   );
 }
 
-function CornerLabel({ children }: { children: React.ReactNode }) {
+function MenuMark({ open }: { open: boolean }) {
   return (
-    <div className="corner-label">
-      <span />
-      <p>{children}</p>
-      <span />
-    </div>
-  );
-}
-
-function Marquee() {
-  const items = ["Foundrlist", "Findly.tools", "Listed On", "Featured On Startup Fame", "twelve.tools"];
-  return (
-    <div className="press-strip" aria-label="Press mentions">
-      <div className="press-track">
-        {[...items, ...items].map((item, index) => (
-          <span key={`${item}-${index}`}>{item}</span>
-        ))}
-      </div>
-    </div>
+    <span className={`menu-mark ${open ? "is-open" : ""}`} aria-hidden="true">
+      <i />
+      <i />
+    </span>
   );
 }
 
@@ -162,27 +94,48 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   const [checkoutNotice, setCheckoutNotice] = useState<Notice>({ kind: "idle", text: "" });
 
   const headline = useMemo(() => {
-    if (pageMode === "features") return "Smarter Insights For A More Engaged Workforce";
-    if (pageMode === "about") return "Built For Better Workplace Decisions";
-    if (pageMode === "how-it-works") return "From Listening To Action In One Flow";
-    if (pageMode === "resources") return "Resources For Stronger Team Culture";
-    if (pageMode === "demo") return "See Prime In Motion";
-    if (pageMode === "checkout") return "Everything You Need, All In One Place";
-    return "The Future Of Employee Happiness Starts With AI";
+    if (pageMode === "features") return "Read the room. Before the room breaks.";
+    if (pageMode === "about") return "Work should feel human. Data can help.";
+    if (pageMode === "how-it-works") return "From quiet signal to clear action.";
+    if (pageMode === "resources") return "Better questions build better teams.";
+    if (pageMode === "demo") return "See what your workplace is saying.";
+    if (pageMode === "checkout") return "One system. A clearer workplace.";
+    return "Your people are already telling you everything.";
   }, [pageMode]);
+
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.16 },
+    );
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("menu-open", menuOpen || videoOpen);
+    return () => document.body.classList.remove("menu-open");
+  }, [menuOpen, videoOpen]);
 
   async function handleDemo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const payload = {
-      name: String(form.get("name") || ""),
-      email: String(form.get("email") || ""),
-      company: String(form.get("company") || ""),
-    };
-    setDemoNotice({ kind: "idle", text: "Sending..." });
+    setDemoNotice({ kind: "idle", text: "Sending your signal…" });
     try {
-      await submitApi("/api/contact", payload);
-      setDemoNotice({ kind: "success", text: "Demo request received. We will reply with a tailored walkthrough." });
+      await submitApi("/api/contact", {
+        name: String(form.get("name") || ""),
+        email: String(form.get("email") || ""),
+        company: String(form.get("company") || ""),
+      });
+      setDemoNotice({ kind: "success", text: "Received. We’ll shape the walkthrough around your team." });
       event.currentTarget.reset();
     } catch (error) {
       setDemoNotice({ kind: "error", text: error instanceof Error ? error.message : "Could not submit request." });
@@ -192,10 +145,10 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    setSubNotice({ kind: "idle", text: "Joining..." });
+    setSubNotice({ kind: "idle", text: "Joining…" });
     try {
       await submitApi("/api/subscribe", { email: String(form.get("email") || "") });
-      setSubNotice({ kind: "success", text: "You are on the Prime resources list." });
+      setSubNotice({ kind: "success", text: "You’re on the list." });
       event.currentTarget.reset();
     } catch (error) {
       setSubNotice({ kind: "error", text: error instanceof Error ? error.message : "Subscription failed." });
@@ -203,7 +156,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   }
 
   async function handleCheckout() {
-    setCheckoutNotice({ kind: "idle", text: "Preparing secure checkout..." });
+    setCheckoutNotice({ kind: "idle", text: "Preparing secure checkout…" });
     try {
       const result = await submitApi("/api/checkout", { plan: "macos-lifetime" });
       setCheckoutNotice({ kind: "success", text: result.message });
@@ -213,255 +166,268 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   }
 
   return (
-    <main className="site-shell">
-      <header className="nav-frame" aria-label="Primary navigation">
-        <Link href="/" className="brand" aria-label="SaaS Prime home">
-          <span>SaaS</span> Prime
+    <main className="prime-site">
+      <header className="site-header">
+        <Link className="wordmark" href="/" aria-label="Prime home">
+          PRIME<span>°</span>
         </Link>
-        <nav className="desktop-nav">
-          {nav.map(([label, href]) => (
-            <Link key={label} href={href}>
-              {label}
-            </Link>
+        <div className="header-signal">
+          <i />
+          Workplace signal: live
+        </div>
+        <nav className="header-nav" aria-label="Primary navigation">
+          {nav.slice(1, 4).map(([label, href]) => (
+            <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <button className="icon-button mobile-menu-button" aria-label="Open menu" onClick={() => setMenuOpen((value) => !value)}>
-          <Icon name={menuOpen ? "close" : "menu"} />
+        <Link href="/demo" className="header-cta">Book a demo <Arrow diagonal /></Link>
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">
+          Menu <MenuMark open={menuOpen} />
         </button>
       </header>
 
-      {menuOpen && (
-        <nav className="mobile-nav" aria-label="Mobile navigation">
-          {nav.map(([label, href]) => (
-            <Link key={label} href={href} onClick={() => setMenuOpen(false)}>
-              {label}
-            </Link>
-          ))}
-          <Link href="/demo" onClick={() => setMenuOpen(false)}>
-            Book Demo
-          </Link>
-        </nav>
-      )}
-
-      <section className="hero-section page-panel">
-        <div className="hero-copy">
-          <div className="eyebrow">SaaS Prime</div>
-          <h1>{headline}</h1>
-          <p>Unlock workforce potential through AI-powered happiness intelligence, sentiment analysis, and culture action tools.</p>
-          <div className="hero-actions">
-            <Link href="/demo" className="glass-button">
-              Get Started <Icon name="send" />
-            </Link>
-            <button className="text-button" onClick={() => setVideoOpen(true)}>
-              Watch Video <Icon name="play" />
-            </button>
+      <div className={`menu-layer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
+        <div className="menu-noise" />
+        <div className="menu-inner">
+          <p className="micro-label">Navigate / Prime intelligence</p>
+          <nav>
+            {nav.map(([label, href], index) => (
+              <Link href={href} key={href} onClick={() => setMenuOpen(false)}>
+                <span>0{index + 1}</span>{label}<Arrow diagonal />
+              </Link>
+            ))}
+          </nav>
+          <div className="menu-footer">
+            <p>Make work feel better—on purpose.</p>
+            <Link href="/demo" onClick={() => setMenuOpen(false)}>Start a conversation <Arrow /></Link>
           </div>
         </div>
+      </div>
 
-        <div className="hero-visual" aria-label="Animated workplace intelligence preview">
-          <Image src="/assets/prime-hero.png" alt="AI workplace analytics dashboard viewed by a team leader" fill priority sizes="(max-width: 900px) 100vw, 58vw" />
-          <div className="hero-overlay hero-overlay-one">Strategy & Execution</div>
-          <div className="hero-overlay hero-overlay-two">Breakpoint Diagnosis</div>
-          <div className="orbital-copy">Performance Scaling</div>
-          <div className="large-watermark">PRIME</div>
-          <div className="scan-line" />
+      <section className="hero">
+        <Image
+          src="/assets/prime-signal-hero.png"
+          alt="Abstract human profile composed of workplace signal data"
+          fill
+          priority
+          sizes="100vw"
+        />
+        <div className="hero-shade" />
+        <div className="hero-grid" />
+        <div className="hero-content">
+          <p className="micro-label">AI workplace intelligence / 2026</p>
+          <h1>{headline}</h1>
+          <p className="hero-intro">
+            Prime turns the emotional pulse of work into decisions leaders can use—before pressure becomes damage.
+          </p>
+        </div>
+        <div className="hero-actions">
+          <Link href="/demo" className="primary-action">Read your signals <Arrow /></Link>
+          <button onClick={() => setVideoOpen(true)} className="play-action"><span>▶</span> 01:24 / See Prime in motion</button>
+        </div>
+        <div className="hero-index">
+          <span>Live index</span>
+          <strong>78.4</strong>
+          <i><b style={{ width: "78.4%" }} /></i>
+          <small>+ 4.8 this month</small>
+        </div>
+        <div className="scroll-cue">Scroll to decode <span>↓</span></div>
+      </section>
+
+      <section className="ticker" aria-label="Prime capabilities">
+        <div>
+          <span>Sentiment intelligence</span><i>✦</i>
+          <span>Burnout detection</span><i>✦</i>
+          <span>Clearer decisions</span><i>✦</i>
+          <span>Healthier teams</span><i>✦</i>
+          <span>Sentiment intelligence</span><i>✦</i>
+          <span>Burnout detection</span><i>✦</i>
         </div>
       </section>
 
-      <Marquee />
-
-      <section className="feature-rail">
-        {features.map((feature, index) => (
-          <article className="feature-tile" key={feature.title}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <h2>{feature.title}</h2>
-            <p>{feature.copy}</p>
-          </article>
-        ))}
+      <section className="manifesto">
+        <div className="manifesto-top" data-reveal>
+          <p className="micro-label dark">The invisible layer of work</p>
+          <p>Most workplace problems whisper before they shout.</p>
+        </div>
+        <h2 data-reveal>
+          WE MAKE THE <em>QUIET SIGNALS</em> IMPOSSIBLE TO MISS.
+        </h2>
+        <div className="manifesto-bottom" data-reveal>
+          <p>Not another dashboard full of noise.</p>
+          <p>Prime shows what changed, why it matters, and where to move next.</p>
+        </div>
       </section>
 
-      <section className="split-section">
-        <CornerLabel>All Insights</CornerLabel>
-        <div className="section-heading">
-          <h2>Smarter Insights For A More Engaged Workforce</h2>
-          <p>Gain real-time visibility into employee sentiment, engagement, and well-being to foster a healthier, more productive workplace.</p>
+      <section className="capabilities">
+        <div className="section-intro" data-reveal>
+          <p className="micro-label">Three parts / one clearer picture</p>
+          <h2>Intelligence with a human pulse.</h2>
         </div>
-        <div className="insight-grid">
-          {insights.map((item) => (
-            <article className="insight-card" key={item.title}>
-              <div className="doodle-panel">
-                <span className="mood mood-one" />
-                <span className="mood mood-two" />
-                <span className="mood mood-three" />
-                <span className="mood-line" />
-              </div>
-              <div className="pill">{item.tag}</div>
+        <div className="capability-list">
+          {capabilities.map((item) => (
+            <article className={`capability-row ${item.tone}`} key={item.number} data-reveal>
+              <span className="cap-number">{item.number}</span>
               <h3>{item.title}</h3>
               <p>{item.copy}</p>
-              <Link href="/features">
-                Explore Insights <Icon name="arrow" />
-              </Link>
+              <div className="cap-tags">
+                {item.meta.map((tag) => <span key={tag}>{tag}</span>)}
+              </div>
+              <Link href="/features" aria-label={`Explore ${item.title}`}><Arrow diagonal /></Link>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="video-section">
-        <div className="video-card">
-          <Image src="/assets/prime-hero.png" alt="Workplace analytics video preview" fill sizes="(max-width: 900px) 100vw, 54vw" />
-          <button onClick={() => setVideoOpen(true)} className="video-button">
-            Watch Video <Icon name="play" />
-          </button>
-          <div className="chat-bubble bubble-one">Did you review the metrics?</div>
-          <div className="chat-bubble bubble-two">What if we re-evaluate the core parameters?</div>
-          <div className="chat-bubble bubble-three">Final decision: proceed with the engagement plan.</div>
+      <section className="signal-lab">
+        <div className="lab-copy" data-reveal>
+          <p className="micro-label">Live signal lab / No vanity metrics</p>
+          <h2>A workplace has a rhythm. Prime learns when it changes.</h2>
+          <p>
+            See pressure, trust, energy, and belonging as connected signals—not isolated survey scores.
+          </p>
+          <Link href="/features" className="outline-action">Explore the intelligence layer <Arrow diagonal /></Link>
         </div>
-        <div className="section-heading side">
-          <CornerLabel>Step By Step</CornerLabel>
-          <h2>Great Workplace Culture Isn&apos;t Built Overnight</h2>
-          <p>Workplace happiness and motivation are built through continuous insight and action.</p>
-        </div>
-      </section>
-
-      <section className="timeline-section">
-        <div className="timeline-line" />
-        {steps.map(([number, title, copy]) => (
-          <article key={number} className="timeline-step">
-            <span>{number}</span>
-            <h3>{title}</h3>
-            <p>{copy}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="pricing-section">
-        <div className="pricing-copy">
-          <CornerLabel>Pricing Plan</CornerLabel>
-          <h2>Everything You Need, All In One Place</h2>
-          <p>Empower your organization with AI-driven insights designed for sustainable growth.</p>
-        </div>
-        <div className="pricing-card">
-          <div className="price-ribbon">Exclusive Pricing For Early Adopters</div>
-          <div className="price">$59.99</div>
-          <button onClick={handleCheckout} className="download-button">
-            <Icon name="apple" /> Download for macOS
-          </button>
-          <div className="price-foot">
-            <span>No Subscription Required</span>
-            <span><Icon name="check" /> Free Lifetime Updates</span>
+        <div className="signal-console" data-reveal>
+          <div className="console-head">
+            <span>Team pulse / Product</span>
+            <span className="live-dot">Live</span>
           </div>
+          <div className="radar">
+            <div className="radar-rings" />
+            <div className="radar-shape" />
+            <span className="point p1">Trust <b>84</b></span>
+            <span className="point p2">Energy <b>71</b></span>
+            <span className="point p3">Clarity <b>66</b></span>
+            <span className="point p4">Belonging <b>89</b></span>
+          </div>
+          <div className="console-alert">
+            <span>Signal shift detected</span>
+            <strong>Meeting load is affecting clarity across two teams.</strong>
+            <small>Recommended action ready →</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="process">
+        <div className="process-head" data-reveal>
+          <p className="micro-label dark">How Prime moves</p>
+          <h2>Listen. Understand. Act. Repeat.</h2>
+        </div>
+        <div className="process-list">
+          {steps.map(([number, title, copy]) => (
+            <article key={number} data-reveal>
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+              <i />
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="proof">
+        <div className="proof-image" data-reveal>
+          <Image
+            src="/assets/prime-people-leader.png"
+            alt="People operations leader reviewing a workplace report"
+            fill
+            sizes="(max-width: 800px) 100vw, 48vw"
+          />
+          <span>People, not percentages.</span>
+        </div>
+        <blockquote data-reveal>
+          <p className="micro-label">Field note / GrowthLabs</p>
+          <q>Prime helped us move from “something feels off” to a specific action in the same week.</q>
+          <footer>
+            <strong>Maya Carter</strong>
+            <span>VP, People Operations</span>
+          </footer>
+          <div className="proof-metrics">
+            {metrics.map(([value, label]) => (
+              <span key={label}><strong>{value}</strong>{label}</span>
+            ))}
+          </div>
+        </blockquote>
+      </section>
+
+      <section className="offer">
+        <div className="offer-title" data-reveal>
+          <p className="micro-label dark">Early access / One clear plan</p>
+          <h2>Less guessing. More signal.</h2>
+          <p>Everything you need to hear your workforce and move with confidence.</p>
+        </div>
+        <div className="offer-card" data-reveal>
+          <div className="offer-price">
+            <span>Lifetime access</span>
+            <strong><sup>$</sup>59.99</strong>
+          </div>
+          <ul>
+            <li>Unlimited pulse check-ins</li>
+            <li>AI sentiment and risk analysis</li>
+            <li>Action briefs for leaders</li>
+            <li>Free lifetime updates</li>
+          </ul>
+          <button onClick={handleCheckout}>Get Prime for macOS <Arrow /></button>
           {checkoutNotice.text && <p className={`notice ${checkoutNotice.kind}`}>{checkoutNotice.text}</p>}
         </div>
       </section>
 
-      <section className="testimonial-section">
-        <div className="testimonial-heading">
-          <CornerLabel>Testimonials</CornerLabel>
-          <div className="testimonial-heading-copy">
-            <h2>What Our Customers Say</h2>
-            <p>Organizations use Prime to improve engagement, well-being, and workplace culture.</p>
-          </div>
+      <section className="demo-block">
+        <div className="demo-copy" data-reveal>
+          <p className="micro-label">Your team / Your signal</p>
+          <h2>Let’s hear what work feels like.</h2>
+          <p>Tell us a little about your organization. We’ll tailor the walkthrough to the questions you need answered.</p>
         </div>
-        <div className="quote-panel">
-          <p>
-            The stress and burnout detection capabilities changed how we approach employee well-being. Prime helps us identify
-            potential concerns before they become larger issues, allowing us to take proactive measures that support our teams.
-          </p>
-          <div>
-            <strong>Michael Carter</strong>
-            <span>VP of Human Resources, GrowthLabs</span>
-          </div>
-          <div className="rating" aria-label="Rated 4.5 out of 5">4.5</div>
-        </div>
-        <div className="testimonial-image">
-          <Image
-            src="/assets/prime-testimonial.png"
-            alt="Executive customer portrait"
-            fill
-            loading="eager"
-            sizes="(max-width: 900px) 100vw, 48vw"
-            style={{ objectPosition: "right center" }}
-          />
-        </div>
-      </section>
-
-      <section className="demo-section">
-        <div className="section-heading">
-          <CornerLabel>Book Demo</CornerLabel>
-          <h2>Explore Prime With A Guided Walkthrough</h2>
-          <p>Tell us where your culture program stands, and we will tailor the product walkthrough around your team.</p>
-        </div>
-        <form className="demo-form" onSubmit={handleDemo}>
-          <label>
-            Name
-            <input name="name" required placeholder="Your name" />
-          </label>
-          <label>
-            Work email
-            <input name="email" type="email" required placeholder="you@company.com" />
-          </label>
-          <label>
-            Company
-            <input name="company" required placeholder="Company name" />
-          </label>
-          <button type="submit">Request Demo <Icon name="arrow" /></button>
+        <form onSubmit={handleDemo} className="demo-form" data-reveal>
+          <label><span>01 / Name</span><input name="name" required placeholder="Your name" /></label>
+          <label><span>02 / Work email</span><input name="email" type="email" required placeholder="you@company.com" /></label>
+          <label><span>03 / Company</span><input name="company" required placeholder="Company name" /></label>
+          <button type="submit">Request a guided demo <Arrow diagonal /></button>
           {demoNotice.text && <p className={`notice ${demoNotice.kind}`}>{demoNotice.text}</p>}
         </form>
       </section>
 
-      <footer className="footer-panel">
-        <div className="footer-intro">
-          <Link href="/" className="brand">
-            <span>SaaS</span> Prime
-          </Link>
-          <h2>Turn Workplace Signals Into Clear Action</h2>
+      <footer className="site-footer">
+        <div className="footer-main">
+          <Link className="wordmark footer-mark" href="/">PRIME<span>°</span></Link>
+          <h2>Better work starts with better listening.</h2>
+          <Link href="/demo" className="footer-circle"><span>Start now</span><Arrow diagonal /></Link>
         </div>
-        <div className="footer-side">
-          <form className="newsletter" onSubmit={handleSubscribe}>
-            <label>
-              Resources
-              <input type="email" name="email" placeholder="Email for updates" required />
-            </label>
-            <button type="submit">Join <Icon name="arrow" /></button>
+        <div className="footer-grid">
+          <div>
+            <span className="footer-label">Navigate</span>
+            {nav.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
+          </div>
+          <form onSubmit={handleSubscribe}>
+            <span className="footer-label">Signals worth reading</span>
+            <label><input name="email" type="email" required placeholder="Your email address" /><button aria-label="Subscribe"><Arrow /></button></label>
             {subNotice.text && <p className={`notice ${subNotice.kind}`}>{subNotice.text}</p>}
           </form>
-          <nav>
-            <strong>Company</strong>
-            <div className="footer-nav-links">
-              {nav.map(([label, href]) => (
-                <Link key={label} href={href}>
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </nav>
+          <div>
+            <span className="footer-label">Status</span>
+            <p><i className="status-dot" /> All systems listening</p>
+            <p>Built for human workplaces.</p>
+          </div>
         </div>
         <div className="footer-bottom">
-          <p className="copyright">© 2026 SaaS Prime. All Rights Reserved.</p>
-          <div className="socials" aria-label="Social links">
-            <Link href="/resources">in</Link>
-            <Link href="/resources">ig</Link>
-            <Link href="/resources">x</Link>
-          </div>
+          <span>© 2026 Prime Intelligence</span>
+          <span>Privacy / Terms</span>
+          <span>Dhaka — Everywhere</span>
         </div>
       </footer>
 
       {videoOpen && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Prime product video">
-          <div className="modal-card">
-            <button className="icon-button modal-close" onClick={() => setVideoOpen(false)} aria-label="Close video">
-              <Icon name="close" />
-            </button>
-            <div className="video-sim">
-              <div className="video-pulse"><Icon name="play" /></div>
-              <h2>Prime listens, detects, and recommends.</h2>
-              <p>Live sentiment streams are translated into clear actions for HR, operations, and leadership teams.</p>
-              <div className="metric-row">
-                {metrics.map(([value, label]) => (
-                  <span key={label}><strong>{value}</strong>{label}</span>
-                ))}
-              </div>
+        <div className="video-modal" role="dialog" aria-modal="true" aria-label="Prime product overview">
+          <button className="video-close" onClick={() => setVideoOpen(false)}>Close <MenuMark open /></button>
+          <div className="video-story">
+            <p className="micro-label">Prime in motion / 01:24</p>
+            <h2>Listen to the change beneath the numbers.</h2>
+            <div className="story-wave">
+              {Array.from({ length: 36 }).map((_, index) => <i key={index} style={{ height: `${18 + ((index * 17) % 76)}%` }} />)}
             </div>
+            <p>Prime captures signals, finds meaningful shifts, and gives leaders a clear next action.</p>
+            <button onClick={() => setVideoOpen(false)}>Continue exploring <Arrow /></button>
           </div>
         </div>
       )}

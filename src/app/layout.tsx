@@ -1,22 +1,36 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Archivo_Black, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+const display = Archivo_Black({
+  variable: "--font-display",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const sans = DM_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Prime | AI Employee Happiness Intelligence",
+  title: "Prime | Workplace Signal Intelligence",
   description:
-    "SaaS Prime helps teams detect burnout, monitor sentiment, and turn workplace insight into practical culture action.",
+    "Prime helps teams detect burnout, understand sentiment, and turn quiet workplace signals into clear action.",
   metadataBase: new URL("https://sass-prime.vercel.app"),
   openGraph: {
-    title: "SaaS Prime",
-    description: "AI-powered employee happiness and workplace intelligence.",
-    images: ["/assets/prime-hero.png"],
+    title: "Prime | Workplace Signal Intelligence",
+    description: "Hear what work feels like, see what changed, and know where to act.",
+    images: ["/assets/prime-signal-hero.png"],
   },
 };
 
@@ -26,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} antialiased`}>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );
