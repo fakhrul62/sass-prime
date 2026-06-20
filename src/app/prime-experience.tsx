@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import InnerPageContent from "./inner-pages";
 import { RevealText, ScrambleText, SignalClock } from "./motion-text";
 import SignalCursor from "./signal-cursor";
 
@@ -55,6 +56,53 @@ const metrics = [
   ["42%", "faster action"],
   ["3.5×", "wider coverage"],
 ];
+
+const pageConfig: Record<string, { kicker: string; intro: string; action: string; href: string }> = {
+  home: {
+    kicker: "AI workplace intelligence / 2026",
+    intro: "Prime turns the emotional pulse of work into decisions leaders can use—before pressure becomes damage.",
+    action: "Read your signals",
+    href: "/demo",
+  },
+  features: {
+    kicker: "Prime intelligence system / 03 layers",
+    intro: "Capture the signal, understand the movement, and give leaders a clear next action.",
+    action: "See Prime live",
+    href: "/demo",
+  },
+  about: {
+    kicker: "Our point of view / Human work",
+    intro: "We believe earlier listening, clearer context, and accountable action can make work meaningfully better.",
+    action: "Explore our principles",
+    href: "#principles",
+  },
+  "how-it-works": {
+    kicker: "The Prime operating loop / 04 stages",
+    intro: "A continuous system for listening, interpreting, acting, and learning what actually improved.",
+    action: "Walk through the process",
+    href: "#process-detail",
+  },
+  resources: {
+    kicker: "Prime field library / Practical intelligence",
+    intro: "Research, guides, and operating tools for people who want to shape healthier workplaces.",
+    action: "Browse the library",
+    href: "#library",
+  },
+  demo: {
+    kicker: "Guided walkthrough / Built around your team",
+    intro: "See how Prime turns the workplace question you cannot answer into a signal you can act on.",
+    action: "Request your demo",
+    href: "#demo-form",
+  },
+  checkout: {
+    kicker: "Prime early access / Lifetime plan",
+    intro: "Get the complete Prime signal system for macOS with one payment and lifetime updates.",
+    action: "Get Prime",
+    href: "#buy-prime",
+  },
+};
+
+const tickerItems = ["Sentiment intelligence", "Burnout detection", "Clearer decisions", "Healthier teams"];
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
@@ -118,6 +166,7 @@ async function submitApi(path: string, payload: Record<string, string>) {
 export default function PrimeExperience({ pageMode = "home" }: { pageMode?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTheme, setActiveTheme] = useState("dark");
   const [activeContext, setActiveContext] = useState({
     label: "Signals become decisions",
@@ -127,6 +176,8 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
   const [demoNotice, setDemoNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [subNotice, setSubNotice] = useState<Notice>({ kind: "idle", text: "" });
   const [checkoutNotice, setCheckoutNotice] = useState<Notice>({ kind: "idle", text: "" });
+  const config = pageConfig[pageMode] || pageConfig.home;
+  const isHome = pageMode === "home";
 
   const headline = useMemo(() => {
     if (pageMode === "features") return "Read the room. Before the room breaks.";
@@ -137,6 +188,24 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
     if (pageMode === "checkout") return "One system. A clearer workplace.";
     return "Your people are already telling you everything.";
   }, [pageMode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const started = performance.now();
+
+    const finish = async () => {
+      await document.fonts.ready;
+      const remaining = Math.max(0, 900 - (performance.now() - started));
+      window.setTimeout(() => {
+        if (!cancelled) setLoading(false);
+      }, remaining);
+    };
+
+    finish();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -162,30 +231,51 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
 
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-theme]"));
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const activeEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    let frame = 0;
 
-        if (activeEntry) {
-          const target = activeEntry.target as HTMLElement;
-          setActiveTheme(target.getAttribute("data-theme") || "dark");
-          setActiveContext({
-            label: target.dataset.railLabel || "Signals become decisions",
-            action: target.dataset.railAction || "Book a demo",
-            href: target.dataset.railHref || "/demo",
-          });
-        }
-      },
-      {
-        rootMargin: "-42% 0px -42% 0px",
-        threshold: [0, 0.01, 0.25, 0.5, 0.75, 1],
-      },
-    );
+    const update = () => {
+      const sampleY = window.innerWidth < 800 ? 66 : 78;
+      const target = sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= sampleY && rect.bottom > sampleY;
+      });
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+      if (target) {
+        setActiveTheme(target.dataset.theme || "dark");
+        setActiveContext({
+          label: target.dataset.railLabel || "Signals become decisions",
+          action: target.dataset.railAction || "Book a demo",
+          href: target.dataset.railHref || "/demo",
+        });
+      }
+
+      document.querySelector(".site-header")?.toggleAttribute("data-scrolled", window.scrollY > 12);
+    };
+
+    const requestUpdate = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setVideoOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
   async function handleDemo(event: FormEvent<HTMLFormElement>) {
@@ -230,6 +320,11 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
 
   return (
     <main className="prime-site">
+      <div className={`site-preloader ${loading ? "is-loading" : "is-ready"}`} aria-hidden={!loading}>
+        <div className="preloader-mark">PRIME<span>°</span></div>
+        <div className="preloader-status"><ScrambleText text="Calibrating workplace signals" /></div>
+        <div className="preloader-line"><i /></div>
+      </div>
       <SignalCursor />
       <header className="site-header" data-active-theme={activeTheme}>
         <Link className="wordmark" href="/" aria-label="Prime home">
@@ -241,7 +336,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
         <nav className="header-nav" aria-label="Primary navigation">
           {nav.slice(1, 4).map(([label, href]) => (
-            <Link href={href} key={href}>{label}</Link>
+            <Link href={href} key={href} aria-current={href.includes(pageMode) ? "page" : undefined}>{label}</Link>
           ))}
         </nav>
         <MotionLink href="/demo" className="header-cta" label="Book a demo" cursorLabel="Open demo request" diagonal />
@@ -280,7 +375,7 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         </div>
       </div>
 
-      <section className="hero theme-section" data-theme="dark" data-rail-label="The workplace is speaking" data-rail-action="Read your signals" data-rail-href="/demo">
+      <section className={`hero theme-section ${isHome ? "" : "inner-hero"}`} data-theme="dark" data-rail-label="The workplace is speaking" data-rail-action={config.action} data-rail-href={config.href}>
         <Image
           src="/assets/prime-signal-hero.png"
           alt="Abstract human profile composed of workplace signal data"
@@ -291,14 +386,12 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
         <div className="hero-shade" />
         <div className="hero-grid" />
         <div className="hero-content">
-          <p className="micro-label"><ScrambleText text="AI workplace intelligence / 2026" /></p>
+          <p className="micro-label"><ScrambleText text={config.kicker} /></p>
           <RevealText as="h1">{headline}</RevealText>
-          <p className="hero-intro">
-            Prime turns the emotional pulse of work into decisions leaders can use—before pressure becomes damage.
-          </p>
+          <p className="hero-intro">{config.intro}</p>
         </div>
         <div className="hero-actions">
-          <MotionLink href="/demo" className="primary-action" label="Read your signals" cursorLabel="Start with Prime" />
+          <MotionLink href={config.href} className="primary-action" label={config.action} cursorLabel={config.action} />
           <button onClick={() => setVideoOpen(true)} className="play-action" data-cursor-label="Play product story"><span>▶</span> 01:24 / See Prime in motion</button>
         </div>
         <div className="hero-index">
@@ -311,16 +404,17 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
       </section>
 
       <section className="ticker theme-section" data-theme="acid" data-rail-label="Live signal stream" data-rail-action="Explore features" data-rail-href="/features" aria-label="Prime capabilities">
-        <div>
-          <span>Sentiment intelligence</span><i>✦</i>
-          <span>Burnout detection</span><i>✦</i>
-          <span>Clearer decisions</span><i>✦</i>
-          <span>Healthier teams</span><i>✦</i>
-          <span>Sentiment intelligence</span><i>✦</i>
-          <span>Burnout detection</span><i>✦</i>
+        <div className="ticker-track">
+          {[0, 1].map((group) => (
+            <div className="ticker-group" aria-hidden={group === 1} key={group}>
+              {tickerItems.map((item) => <span key={item}>{item}<i>✦</i></span>)}
+            </div>
+          ))}
         </div>
       </section>
 
+      {isHome ? (
+        <>
       <section className="manifesto theme-section" data-theme="light" data-rail-label="Quiet signals matter" data-rail-action="See how it works" data-rail-href="/how-it-works">
         <div className="manifesto-top" data-reveal>
           <p className="micro-label dark">The invisible layer of work</p>
@@ -463,6 +557,16 @@ export default function PrimeExperience({ pageMode = "home" }: { pageMode?: stri
           {demoNotice.text && <p className={`notice ${demoNotice.kind}`}>{demoNotice.text}</p>}
         </form>
       </section>
+        </>
+      ) : (
+        <InnerPageContent
+          pageMode={pageMode}
+          demoNotice={demoNotice}
+          checkoutNotice={checkoutNotice}
+          onDemo={handleDemo}
+          onCheckout={handleCheckout}
+        />
+      )}
 
       <footer className="site-footer theme-section" data-theme="dark" data-rail-label="Better listening starts here" data-rail-action="Make the first move" data-rail-href="/demo">
         <div className="footer-main">
